@@ -90,6 +90,7 @@ func main() {
 		ExitWithError(BinaryNotSupported)
 	}
 
+	// Run !
 	err = cmd.Run()
 	if err != nil {
 		ExitWithError(err)
