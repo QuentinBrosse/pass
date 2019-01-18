@@ -28,14 +28,14 @@ const (
 type Plugin struct {
 	BinaryName string
 	MethodType uint
-	FlagName string
+	FlagName   string
 }
 
 var Plugins = map[string]*Plugin{
 	"ptest": {
 		BinaryName: "ptest",
 		MethodType: MethodType_FlagValue,
-		FlagName: "-pv",
+		FlagName:   "-pv",
 	},
 }
 
@@ -55,7 +55,7 @@ func GetPlugin(binary string) *Plugin {
 func InjectPassword(cmd *exec.Cmd, plugin *Plugin) error {
 	switch plugin.MethodType {
 	case MethodType_FlagValue:
-		begin := []string{cmd.Args[0], plugin.FlagName+"="+ThePassword}
+		begin := []string{cmd.Args[0], plugin.FlagName + "=" + ThePassword}
 		cmd.Args = append(begin, cmd.Args[1:]...)
 		return nil
 	case MethodType_FlagPath:
