@@ -59,6 +59,9 @@ func main() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
+	// Set password to plugin
+	plugin.SetPassword(ThePassword)
+
 	// Prepare plugin context
 	err = plugin.Prepare()
 	if err != nil {
@@ -66,7 +69,7 @@ func main() {
 	}
 
 	// Inject password
-	err = plugin.InjectPassword(cmd, ThePassword)
+	err = plugin.InjectPassword(cmd)
 	if err != nil {
 		ExitWithError(err)
 	}

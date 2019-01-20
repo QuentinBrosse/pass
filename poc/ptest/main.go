@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -19,17 +20,27 @@ func PrintPasswordAndExist(name, password string) {
 }
 
 func main() {
-
-	// Try with value flag
-	flagPassword := flag.String("pv", "", "the password in clear")
+	flagValuePassword := flag.String("pv", "", "the password value in clear")
+	flagPath := flag.String("pp", "", "the path of the file containing the password")
 	flag.Parse()
 
-	if *flagPassword != "" {
-		PrintPasswordAndExist("Flag value password", *flagPassword)
+	varenvPassword := os.Getenv("PASSWORD")
+
+	// Try with flag value
+	if *flagValuePassword != "" {
+		PrintPasswordAndExist("Flag value password", *flagValuePassword)
+	}
+
+	// Try with flag path
+	if *flagPath != "" {
+		raw, err := ioutil.ReadFile(*flagPath)
+		if err != nil {
+			panic(err)
+		}
+		PrintPasswordAndExist("Flag path password", string(raw))
 	}
 
 	// Try with varenv
-	varenvPassword := os.Getenv("PASSWORD")
 	if varenvPassword != "" {
 		PrintPasswordAndExist("Varenv password", varenvPassword)
 	}

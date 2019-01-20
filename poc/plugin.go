@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 
 	yaml "gopkg.in/yaml.v2"
@@ -13,8 +14,8 @@ type PluginConstructor func(*YamlPlugin) Plugin
 
 var PluginTypeNameToConstructor = map[string]PluginConstructor{
 	"FLAG_VALUE": NewFlagValuePlugin,
-	// "FLAG_PATH":  NewFlagPath,
-	"VAR_ENV": NewVarEnvPlugin,
+	"FLAG_PATH":  NewFlagPathPlugin,
+	"VAR_ENV":    NewVarEnvPlugin,
 }
 
 type YamlPlugin struct {
@@ -25,8 +26,9 @@ type YamlPlugin struct {
 }
 
 type Plugin interface {
+	SetPassword(string)
 	Prepare() error
-	InjectPassword(*exec.Cmd, string) error
+	InjectPassword(*exec.Cmd) error
 	CleanUp() error
 }
 
@@ -72,6 +74,7 @@ func NewPluginFromConfig(name string, file io.Reader) (Plugin, error) {
 
 type FlagValuePlugin struct {
 	flagName string
+	password string
 }
 
 func NewFlagValuePlugin(plugin *YamlPlugin) Plugin {
@@ -80,17 +83,75 @@ func NewFlagValuePlugin(plugin *YamlPlugin) Plugin {
 	}
 }
 
-func (fv *FlagValuePlugin) Prepare() error {
+func (fp *FlagValuePlugin) SetPassword(password string) {
+	fp.password = password
+}
+
+func (fp *FlagValuePlugin) Prepare() error {
 	return nil
 }
 
-func (fv *FlagValuePlugin) InjectPassword(cmd *exec.Cmd, password string) error {
-	begin := []string{cmd.Args[0], fv.flagName, password}
+func (fp *FlagValuePlugin) InjectPassword(cmd *exec.Cmd) error {
+	begin := []string{cmd.Args[0], fp.flagName, fp.password}
 	cmd.Args = append(begin, cmd.Args[1:]...)
 	return nil
 }
 
-func (fv *FlagValuePlugin) CleanUp() error {
+func (fp *FlagValuePlugin) CleanUp() error {
+	return nil
+}
+
+//
+// FlagPathPlugin
+//
+
+type FlagPathPlugin struct {
+	flagName         string
+	password         string
+	passwordFileName string
+}
+
+func NewFlagPathPlugin(plugin *YamlPlugin) Plugin {
+	return &FlagPathPlugin{
+		flagName: plugin.FlagName,
+	}
+}
+
+func (fp *FlagPathPlugin) SetPassword(password string) {
+	fp.password = password
+}
+
+func (fp *FlagPathPlugin) Prepare() error {
+	file, err := ioutil.TempFile("", "")
+	if err != nil {
+		return fmt.Errorf("fail to create password tmp file: %s", err)
+	}
+
+	// TODO: Maybe add a chown here (configurable in plugin settings ?)
+
+	_, err = file.WriteString(fp.password)
+	if err != nil {
+		return fmt.Errorf("fail to write in password tmp file: %s", err)
+	}
+
+	_ = file.Close()
+
+	fp.passwordFileName = file.Name()
+
+	return nil
+}
+
+func (fp *FlagPathPlugin) InjectPassword(cmd *exec.Cmd) error {
+	begin := []string{cmd.Args[0], fp.flagName, fp.passwordFileName}
+	cmd.Args = append(begin, cmd.Args[1:]...)
+	return nil
+}
+
+func (fp *FlagPathPlugin) CleanUp() error {
+	err := os.Remove(fp.passwordFileName)
+	if err != nil {
+		return fmt.Errorf("fail to remove the password tmp file: %s", err)
+	}
 	return nil
 }
 
@@ -100,6 +161,7 @@ func (fv *FlagValuePlugin) CleanUp() error {
 
 type VarEnvPlugin struct {
 	varEnvName string
+	password   string
 }
 
 func NewVarEnvPlugin(plugin *YamlPlugin) Plugin {
@@ -108,12 +170,16 @@ func NewVarEnvPlugin(plugin *YamlPlugin) Plugin {
 	}
 }
 
+func (ve *VarEnvPlugin) SetPassword(password string) {
+	ve.password = password
+}
+
 func (ve *VarEnvPlugin) Prepare() error {
 	return nil
 }
 
-func (ve *VarEnvPlugin) InjectPassword(cmd *exec.Cmd, password string) error {
-	cmd.Env = append(cmd.Env, ve.varEnvName+"="+password)
+func (ve *VarEnvPlugin) InjectPassword(cmd *exec.Cmd) error {
+	cmd.Env = append(cmd.Env, ve.varEnvName+"="+ve.password)
 	return nil
 }
 
