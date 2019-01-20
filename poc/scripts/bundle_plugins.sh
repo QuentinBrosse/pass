@@ -48,7 +48,7 @@ do
 done
 
 ##
-# Bundle
+# Create Bundle
 ##
 if [ ! -z ${OPT_BUNDLE} ] ; then
   echoerr "Create plugin bundle in $PLUGINS_FILE"
@@ -70,7 +70,7 @@ if [ ! -z ${OPT_BUNDLE} ] ; then
 fi
 
 ##
-# Bundle
+# Remove Bundle
 ##
 if [ ! -z ${OPT_CLEAR} ] ; then
   echoerr "Remove plugin bundle in $PLUGINS_FILE"
