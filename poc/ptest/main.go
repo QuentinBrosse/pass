@@ -12,18 +12,26 @@ func init() {
 	flag.StringVar(&echo, "echo", "", "echo string")
 }
 
-func PrintPasswordAndExist(password string) {
-	fmt.Println("Flag password:", password)
+func PrintPasswordAndExist(name, password string) {
+	fmt.Println(name+":", password)
 	fmt.Println("Echo:", echo)
 	os.Exit(0)
 }
 
 func main() {
+
+	// Try with value flag
 	flagPassword := flag.String("pv", "", "the password in clear")
 	flag.Parse()
 
 	if *flagPassword != "" {
-		PrintPasswordAndExist(*flagPassword)
+		PrintPasswordAndExist("Flag value password", *flagPassword)
+	}
+
+	// Try with varenv
+	varenvPassword := os.Getenv("PASSWORD")
+	if varenvPassword != "" {
+		PrintPasswordAndExist("Varenv password", varenvPassword)
 	}
 
 	fmt.Println("No password found\n")

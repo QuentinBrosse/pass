@@ -53,31 +53,32 @@ func main() {
 
 	_ = file.Close()
 
-	// Prepare command
+	// Create command
 	cmd := exec.Command(binary, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
+	// Prepare plugin context
 	err = plugin.Prepare()
 	if err != nil {
 		ExitWithError(err)
 	}
 
+	// Inject password
 	err = plugin.InjectPassword(cmd, ThePassword)
 	if err != nil {
 		ExitWithError(err)
 	}
 
-	fmt.Println(cmd.Args)
-
-	err = plugin.CleanUp()
+	// Run command
+	err = cmd.Run()
 	if err != nil {
 		ExitWithError(err)
 	}
 
-	// Run !
-	err = cmd.Run()
+	// Clean up plugin context
+	err = plugin.CleanUp()
 	if err != nil {
 		ExitWithError(err)
 	}

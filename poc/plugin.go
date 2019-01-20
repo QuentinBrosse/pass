@@ -12,14 +12,16 @@ import (
 type PluginConstructor func(*YamlPlugin) Plugin
 
 var PluginTypeNameToConstructor = map[string]PluginConstructor{
-	"FLAG_VALUE": NewFlagValue,
+	"FLAG_VALUE": NewFlagValuePlugin,
 	// "FLAG_PATH":  NewFlagPath,
+	"VAR_ENV": NewVarEnvPlugin,
 }
 
 type YamlPlugin struct {
 	BinaryName  string            `yaml:"binary_name"`
 	Constructor PluginConstructor `yaml:"type"`
 	FlagName    string            `yaml:"flag_name"`
+	VarEnvName  string            `yaml:"var_env_name"`
 }
 
 type Plugin interface {
@@ -65,29 +67,56 @@ func NewPluginFromConfig(name string, file io.Reader) (Plugin, error) {
 }
 
 //
-// FlagValue
+// FlagValuePlugin
 //
 
-type FlagValue struct {
+type FlagValuePlugin struct {
 	flagName string
 }
 
-func NewFlagValue(plugin *YamlPlugin) Plugin {
-	return &FlagValue{
+func NewFlagValuePlugin(plugin *YamlPlugin) Plugin {
+	return &FlagValuePlugin{
 		flagName: plugin.FlagName,
 	}
 }
 
-func (fv *FlagValue) Prepare() error {
+func (fv *FlagValuePlugin) Prepare() error {
 	return nil
 }
 
-func (fv *FlagValue) InjectPassword(cmd *exec.Cmd, password string) error {
+func (fv *FlagValuePlugin) InjectPassword(cmd *exec.Cmd, password string) error {
 	begin := []string{cmd.Args[0], fv.flagName, password}
 	cmd.Args = append(begin, cmd.Args[1:]...)
 	return nil
 }
 
-func (fv *FlagValue) CleanUp() error {
+func (fv *FlagValuePlugin) CleanUp() error {
+	return nil
+}
+
+//
+// VarEnvPlugin
+//
+
+type VarEnvPlugin struct {
+	varEnvName string
+}
+
+func NewVarEnvPlugin(plugin *YamlPlugin) Plugin {
+	return &VarEnvPlugin{
+		varEnvName: plugin.VarEnvName,
+	}
+}
+
+func (ve *VarEnvPlugin) Prepare() error {
+	return nil
+}
+
+func (ve *VarEnvPlugin) InjectPassword(cmd *exec.Cmd, password string) error {
+	cmd.Env = append(cmd.Env, ve.varEnvName+"="+password)
+	return nil
+}
+
+func (ve *VarEnvPlugin) CleanUp() error {
 	return nil
 }
