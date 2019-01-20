@@ -2,10 +2,10 @@ package poc
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"pass/poc/plugins"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -49,15 +49,15 @@ func (c *PluginConstructor) UnmarshalYAML(unmarshal func(interface{}) error) err
 	return nil
 }
 
-func NewPluginFromConfig(name string, file io.Reader) (Plugin, error) {
+func NewPluginFromConfig(name string) (Plugin, error) {
 	yamlPlugin := &YamlPlugin{}
 
-	raw, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("fail to read yamlPlugin file %s: %s", name, err)
+	raw, ok := plugins.PluginsBundle[name]
+	if !ok {
+		return nil, fmt.Errorf("binary not supported")
 	}
 
-	err = yaml.Unmarshal(raw, yamlPlugin)
+	err := yaml.Unmarshal([]byte(raw), yamlPlugin)
 	if err != nil {
 		return nil, fmt.Errorf("fail to unmarshal yamlPlugin file %s: %s", name, err)
 	}

@@ -5,8 +5,8 @@
 1. `ln -s $GOPATH/bin/ptest $GOPATH/bin/ptest_flagvalue`
 1. `ln -s $GOPATH/bin/ptest $GOPATH/bin/ptest_flagpath`
 1. `ln -s $GOPATH/bin/ptest $GOPATH/bin/ptest_varenv`
+1. `./scripts/bundle_plugins.sh`
 1. `go install ./pass`
-1. `ln -s $(pwd)/poc/plugins $GOPATH/bin/plugins`
 1. Run it:
    1. `pass`
    1. `pass unkown_binary`

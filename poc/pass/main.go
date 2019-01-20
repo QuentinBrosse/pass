@@ -5,13 +5,9 @@ import (
 	"os"
 	"os/exec"
 	"pass/poc"
-	"path"
-	"path/filepath"
 )
 
 const ThePassword = "🤫🤫🤫🤫"
-
-const PluginDirName = "plugins"
 
 func ExitWithError(err error) {
 	fmt.Fprintln(os.Stderr, "error:", err)
@@ -28,21 +24,7 @@ func main() {
 	args := os.Args[2:]
 
 	// Find plugin
-	ex, err := os.Executable()
-	if err != nil {
-		ExitWithError(err)
-	}
-	exPath := filepath.Dir(ex)
-	filePath := path.Join(exPath, PluginDirName, binary+".yml")
-	file, err := os.Open(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			ExitWithError(fmt.Errorf("binary not supported"))
-		}
-		ExitWithError(fmt.Errorf("fail to open plugin file %s: %s", file.Name(), err))
-	}
-
-	plugin, err := poc.NewPluginFromConfig(binary, file)
+	plugin, err := poc.NewPluginFromConfig(binary)
 	if err != nil {
 		ExitWithError(err)
 	}
@@ -50,8 +32,6 @@ func main() {
 	if err != nil {
 		ExitWithError(err)
 	}
-
-	_ = file.Close()
 
 	// Create command
 	cmd := exec.Command(binary, args...)
