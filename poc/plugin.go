@@ -49,20 +49,20 @@ func (c *PluginConstructor) UnmarshalYAML(unmarshal func(interface{}) error) err
 	return nil
 }
 
-func NewPluginFromConfig(name string) (Plugin, error) {
+func NewPlugin(binary string) (Plugin, error) {
 	yamlPlugin := &YamlPlugin{}
 
-	raw, ok := plugins.PluginsBundle[name]
+	raw, ok := plugins.PluginsBundle[binary]
 	if !ok {
 		return nil, fmt.Errorf("binary not supported")
 	}
 
 	err := yaml.Unmarshal([]byte(raw), yamlPlugin)
 	if err != nil {
-		return nil, fmt.Errorf("fail to unmarshal yamlPlugin file %s: %s", name, err)
+		return nil, fmt.Errorf("fail to unmarshal yamlPlugin file %s: %s", binary, err)
 	}
 
-	yamlPlugin.BinaryName = name
+	yamlPlugin.BinaryName = binary
 	plugin := yamlPlugin.Constructor(yamlPlugin)
 
 	return plugin, nil

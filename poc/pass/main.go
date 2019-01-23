@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"pass/poc"
 )
 
@@ -24,29 +23,22 @@ func main() {
 	args := os.Args[2:]
 
 	// Find plugin
-	plugin, err := poc.NewPluginFromConfig(binary)
+	plugin, err := poc.NewPlugin(binary)
 	if err != nil {
 		ExitWithError(err)
 	}
-
-	if err != nil {
-		ExitWithError(err)
-	}
-
-	// Create command
-	cmd := exec.Command(binary, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-
-	// Set password to plugin
-	plugin.SetPassword(ThePassword)
 
 	// Prepare plugin context
 	err = plugin.Prepare()
 	if err != nil {
 		ExitWithError(err)
 	}
+
+	// Set password to plugin
+	plugin.SetPassword(ThePassword)
+
+	// Create command
+	cmd := poc.NewCommand(binary, args)
 
 	// Inject password
 	err = plugin.InjectPassword(cmd)
