@@ -9,5 +9,5 @@ import (
 func TestNewBinaryCommand(t *testing.T) {
 	actual := NewBinaryCommand("@bin")
 	assert.Equal(t, "@bin", actual.Use)
-	assert.Equal(t, "Run @bin with his injected password", actual.Short)
+	assert.Equal(t, "Run @bin with its injected password", actual.Short)
 }
