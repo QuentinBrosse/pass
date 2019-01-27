@@ -1,20 +1,26 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 
-	"github.com/QuentinBrosse/pass/internal/app/pass/cmdparsing"
+	"github.com/QuentinBrosse/pass/internal/app/pass/cmd"
 )
 
-var cmdArgs *cmdparsing.CmdArgs
-
-func init() {
-	cmdArgs = cmdparsing.Construct()
+func globalRecover() {
+	if r := recover(); r != nil {
+		if _, err := fmt.Fprintln(os.Stderr, "error:", r); err != nil {
+			fmt.Println("error:", r)
+		}
+		os.Exit(1)
+	}
 }
 
 func main() {
-	flag.Parse()
+	defer globalRecover()
 
-	fmt.Println("ConfDirPath:", cmdArgs.ConfDirPath)
+	cmd.Build(os.Args...)
+	cmd.Execute()
+
+	fmt.Println("\nPersistentFlags:", cmd.PersistentFlags)
 }
