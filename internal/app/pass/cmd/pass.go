@@ -25,7 +25,9 @@ var Pass = &cobra.Command{
 	Long: ``,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Usage()
+		if err := cmd.Usage(); err != nil {
+			panic("cannot print usage: " + err.Error())
+		}
 	},
 }
 
