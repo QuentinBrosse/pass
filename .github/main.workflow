@@ -1,8 +1,14 @@
-workflow "Test" {
+workflow "Checks" {
   on = "push"
-  resolves = ["Run Tests"]
+  resolves = ["Test", "Lint"]
 }
 
-action "Run Tests" {
-  uses = "./.github/actions/tests"
+action "Test" {
+  uses = "./.github/actions/go"
+  args = "test"
+}
+
+action "Lint" {
+  uses = "./.github/actions/go"
+  args = "lint"
 }
