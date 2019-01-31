@@ -1,6 +1,6 @@
 package cmd
 
-var helpTemplate = `Usage:{{if .Runnable}}
+const helpTemplate = `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
   {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
 

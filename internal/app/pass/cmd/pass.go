@@ -5,7 +5,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
+
+	"github.com/QuentinBrosse/pass/internal/app/pass/onboarding"
 
 	"github.com/spf13/cobra"
 )
@@ -40,6 +41,8 @@ type PersistentFlagsVars struct {
 
 // Build the command
 func Build(args ...string) {
+	cobra.OnInitialize(onboarding.Run)
+
 	Pass.SetUsageTemplate(helpTemplate)
 
 	flagSet := Pass.PersistentFlags()
@@ -52,12 +55,12 @@ func Build(args ...string) {
 		delete,
 	)
 
-	if binaryCmd := createBinaryCommand(args...); binaryCmd != nil {
+	if binaryCmd := createBinaryCmdFromArgs(args...); binaryCmd != nil {
 		Pass.AddCommand(binaryCmd)
 	}
 }
 
-// Execute the pass command
+// Execute the pass command.
 func Execute() {
 	if err := Pass.Execute(); err != nil {
 		fmt.Println(err)
@@ -65,28 +68,7 @@ func Execute() {
 	}
 }
 
-// Create binary command if it exists in arguments
-func createBinaryCommand(args ...string) *cobra.Command {
-	binaryName := findBinaryNameInArgs(args...)
-	if binaryName == "" {
-		return nil
-	}
-
-	return NewBinaryCommand(binaryName)
-}
-
-// Find the binary name in provided binary
-func findBinaryNameInArgs(args ...string) string {
-	for _, arg := range args {
-		if strings.HasPrefix(arg, defaultBinaryPrefix) && len(arg) > len(defaultBinaryPrefix) {
-			return arg
-		}
-	}
-
-	return ""
-}
-
-// Returns the default directory path for all configuration/user files based on the current user (~/.pass)
+// Returns the default directory path for all configuration/user files based on the current user (~/.pass).
 func getDefaultConfDirPath() string {
 	currentUser, err := user.Current()
 	if err != nil {

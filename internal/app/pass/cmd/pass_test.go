@@ -33,7 +33,7 @@ func Test_createBinaryCommand(t *testing.T) {
 			expected: NewBinaryCommand("@bin"),
 		},
 	} {
-		actual := createBinaryCommand(c.args...)
+		actual := createBinaryCmdFromArgs(c.args...)
 		if c.expected == nil {
 			assert.Nil(t, nil)
 			continue
