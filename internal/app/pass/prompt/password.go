@@ -13,42 +13,59 @@ type PasswordPrompt struct {
 	// Password validation function
 	Validate func(string) error
 
+	// Handle password confirmation
+	Confirmation bool
+
 	password  string
+	aborted   bool
 	confirmed bool
 }
 
-// Run prompt the password and his confirmation
-// It also handle retries and interrupt.
+// Run prompt the password.
 func (p *PasswordPrompt) Run() (string, error) {
-	for !p.confirmed || p.password == "" {
-		err := p.promptPassword()
-		if err != nil {
-			switch err {
-			case ErrEOF:
-				p.confirmed = false
-				p.password = ""
-				break
-			case ErrInterrupt:
-				return "", ErrAbort
-			default:
-				panic("prompt failure: " + err.Error())
-			}
-		}
+	p.run()
+
+	if p.aborted {
+		return "", ErrAborted
 	}
 	return p.password, nil
 }
 
-// PromptPassword
+func (p *PasswordPrompt) run() {
+	err := p.promptPassword()
+	if err != nil {
+		switch err {
+		case promptui.ErrEOF, promptui.ErrInterrupt:
+			p.aborted = true
+			return
+		default:
+			panic("prompt failure: " + err.Error())
+		}
+	}
+
+	if p.Confirmation && !p.confirmed {
+		p.run()
+	}
+}
+
 func (p *PasswordPrompt) promptPassword() error {
+	templates := &promptui.PromptTemplates{
+		Prompt:  "{{ . }} ",
+		Valid:   fmt.Sprintf("%s {{ . | green | bold }}: ", promptui.IconGood),
+		Invalid: fmt.Sprintf("%s {{ . | red | bold }}: ", promptui.IconBad),
+		Success: fmt.Sprintf("%s {{ . }}: ", promptui.IconGood),
+	}
+
 	prompt := promptui.Prompt{
-		Label:    p.Label,
-		Mask:     '*',
-		Validate: p.Validate,
+		Label:     p.Label,
+		Mask:      '*',
+		Validate:  p.Validate,
+		Templates: templates,
 	}
 
 	isConfirmation := !p.confirmed && p.password != ""
 	if isConfirmation {
-		prompt.Label = p.Label + " confirmation"
+		prompt.Label = "Confirmation"
 		prompt.Validate = validatePasswordConfirmation(p.password)
 	}
 
@@ -66,7 +83,6 @@ func (p *PasswordPrompt) promptPassword() error {
 		p.confirmed = true
 	}
 	p.password = password
-
 	return nil
 }
 

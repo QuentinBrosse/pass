@@ -18,3 +18,13 @@ func PrintfErr(format string, a ...interface{}) {
 		panic(err)
 	}
 }
+
+func PrintlnErrExit(a ...interface{}) {
+	PrintlnErr(a...)
+	os.Exit(1)
+}
+
+func PrintfErrExit(format string, a ...interface{}) {
+	PrintfErr(format, a...)
+	os.Exit(1)
+}

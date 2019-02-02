@@ -2,13 +2,11 @@ package onboarding
 
 import (
 	"fmt"
-	"os"
 	"regexp"
-
-	"github.com/QuentinBrosse/pass/internal/app/pass/prompt"
 
 	"github.com/QuentinBrosse/pass/internal/app/pass/keyring"
 	"github.com/QuentinBrosse/pass/internal/app/pass/printer"
+	"github.com/QuentinBrosse/pass/internal/app/pass/prompt"
 	"github.com/fatih/color"
 )
 
@@ -24,28 +22,36 @@ It will be used to encrypt all your other passwords, so make it as strongest as 
 `
 
 // Run the on boarding process.
-func Run() {
-	key := keyring.GetMasterPassword()
-	if key != "" {
-		return
+func Run() error {
+	password := keyring.GetMasterPassword()
+	if password != "" {
+		return nil
 	}
 	printOnBoardingMessage()
 
-	os.Exit(1)
+	password, err := promptMasterPassword(true)
+	if err != nil {
+		return err
+	}
+
+	keyring.SetMasterPassword(password)
+	return nil
 }
 
 func printOnBoardingMessage() {
 	printer.PrintlnErr(color.BlueString(passAsciiArt))
 	printer.PrintlnErr(message)
-
-	promptMasterPassword("")
 }
 
 // promptMasterPassword prompts the master password and his confirmation.
-func promptMasterPassword(passwordToConfirm string) (string, error) {
+func promptMasterPassword(creation bool) (string, error) {
 	passwordPrompt := prompt.PasswordPrompt{
-		Label:    "Master password",
-		Validate: validateMasterPassword,
+		Label: "Master password",
+	}
+
+	if creation {
+		passwordPrompt.Validate = validateMasterPassword
+		passwordPrompt.Confirmation = true
 	}
 
 	masterPassword, err := passwordPrompt.Run()

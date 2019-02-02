@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"os/user"
 	"path/filepath"
 
 	"github.com/QuentinBrosse/pass/internal/app/pass/onboarding"
+	"github.com/QuentinBrosse/pass/internal/app/pass/printer"
 
 	"github.com/spf13/cobra"
 )
@@ -41,7 +40,7 @@ type PersistentFlagsVars struct {
 
 // Build the command
 func Build(args ...string) {
-	cobra.OnInitialize(onboarding.Run)
+	cobra.OnInitialize(initialization)
 
 	Pass.SetUsageTemplate(helpTemplate)
 
@@ -60,11 +59,17 @@ func Build(args ...string) {
 	}
 }
 
+func initialization() {
+	err := onboarding.Run()
+	if err != nil {
+		printer.PrintlnErrExit(err)
+	}
+}
+
 // Execute the pass command.
 func Execute() {
 	if err := Pass.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		printer.PrintlnErrExit(err)
 	}
 }
 
