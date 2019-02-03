@@ -17,8 +17,12 @@ const passAsciiArt = ` ____   __   ____  ____
 `
 
 const message = `Welcome to pass!
+
 Before starting, please create a master password.
-It will be used to encrypt all your other passwords, so make it as strongest as possible!
+It will be used to encrypt all your other passwords, and must:
+- be at least 8 characters
+- contains at least one special character
+- contains at least one lowercase and one uppercase letter
 `
 
 // Run the on boarding process.
