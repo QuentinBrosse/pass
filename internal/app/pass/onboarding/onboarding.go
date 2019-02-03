@@ -5,7 +5,6 @@ import (
 	"regexp"
 
 	"github.com/QuentinBrosse/pass/internal/app/pass/keyring"
-	"github.com/QuentinBrosse/pass/internal/app/pass/printer"
 	"github.com/QuentinBrosse/pass/internal/app/pass/prompt"
 	"github.com/fatih/color"
 )
@@ -43,8 +42,7 @@ func Run() error {
 }
 
 func printOnBoardingMessage() {
-	printer.PrintlnErr(color.BlueString(passAsciiArt))
-	printer.PrintlnErr(message)
+	fmt.Printf("%s%s", color.BlueString(passAsciiArt), message)
 }
 
 // promptMasterPassword prompts the master password and his confirmation.
