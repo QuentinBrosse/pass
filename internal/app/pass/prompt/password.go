@@ -6,6 +6,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
+var confirmationLabel = "Confirmation"
+
 type PasswordPrompt struct {
 	// Password prompt label
 	Label string
@@ -51,9 +53,9 @@ func (p *PasswordPrompt) run() {
 func (p *PasswordPrompt) promptPassword() error {
 	templates := &promptui.PromptTemplates{
 		Prompt:  "{{ . }} ",
-		Valid:   fmt.Sprintf("%s {{ . | green | bold }}: ", promptui.IconGood),
-		Invalid: fmt.Sprintf("%s {{ . | red | bold }}: ", promptui.IconBad),
-		Success: fmt.Sprintf("%s {{ . }}: ", promptui.IconGood),
+		Valid:   fmt.Sprintf("%s {{ . | green | bold }} : ", promptui.IconGood),
+		Invalid: fmt.Sprintf("%s {{ . | red | bold }} : ", promptui.IconBad),
+		Success: fmt.Sprintf("%s {{ . }} : ", promptui.IconGood),
 	}
 
 	prompt := promptui.Prompt{
@@ -65,8 +67,12 @@ func (p *PasswordPrompt) promptPassword() error {
 
 	isConfirmation := !p.confirmed && p.password != ""
 	if isConfirmation {
-		prompt.Label = "Confirmation"
+		prompt.Label = confirmationLabel
 		prompt.Validate = validatePasswordConfirmation(p.password)
+	}
+
+	if p.Confirmation {
+		prompt.Label = fmt.Sprintf("%-*s", p.getLabelPadding(), prompt.Label)
 	}
 
 	password, err := prompt.Run()
@@ -84,6 +90,14 @@ func (p *PasswordPrompt) promptPassword() error {
 	}
 	p.password = password
 	return nil
+}
+
+func (p *PasswordPrompt) getLabelPadding() int {
+	labelPadding := len(confirmationLabel)
+	if len(p.Label) > labelPadding {
+		return len(p.Label)
+	}
+	return labelPadding
 }
 
 // validatePasswordConfirmation check that the
