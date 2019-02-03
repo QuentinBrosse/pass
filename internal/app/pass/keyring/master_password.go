@@ -11,10 +11,7 @@ const (
 
 var ErrNotFound = keyring.ErrNotFound
 
-// TODO: Remove me
-const TmpPassword = "🤫"
-
-// Get the master password in the OS keyring system.
+// GetMasterPassword gets the master password in the OS keyring system.
 func GetMasterPassword() string {
 	password, err := keyring.Get(keyringService, keyringUsername)
 	if err != nil {
@@ -28,7 +25,7 @@ func GetMasterPassword() string {
 	return password
 }
 
-// Set the master password in the OS keyring system.
+// SetMasterPassword sets the master password in the OS keyring system.
 func SetMasterPassword(password string) {
 	err := keyring.Set(keyringService, keyringUsername, password)
 	if err != nil {

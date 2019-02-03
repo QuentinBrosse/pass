@@ -8,6 +8,7 @@ import (
 
 var confirmationLabel = "Confirmation"
 
+// PasswordPrompt defines password Prompt configuration.
 type PasswordPrompt struct {
 	// Password prompt label
 	Label string
@@ -23,7 +24,7 @@ type PasswordPrompt struct {
 	confirmed bool
 }
 
-// Run prompt the password.
+// Run runs the password prompt and return the password.
 func (p *PasswordPrompt) Run() (string, error) {
 	p.run()
 
@@ -33,6 +34,7 @@ func (p *PasswordPrompt) Run() (string, error) {
 	return p.password, nil
 }
 
+// Run prompts the password and fill the PasswordPrompt struct.
 func (p *PasswordPrompt) run() {
 	err := p.promptPassword()
 	if err != nil {
@@ -50,6 +52,7 @@ func (p *PasswordPrompt) run() {
 	}
 }
 
+// PromptPassword prompts a single password prompt for the password itself or for the confirmation.
 func (p *PasswordPrompt) promptPassword() error {
 	templates := &promptui.PromptTemplates{
 		Prompt:  "{{ . }} ",
@@ -92,6 +95,7 @@ func (p *PasswordPrompt) promptPassword() error {
 	return nil
 }
 
+// GetLabelPadding returns the padding required to align labels.
 func (p *PasswordPrompt) getLabelPadding() int {
 	labelPadding := len(confirmationLabel)
 	if len(p.Label) > labelPadding {
@@ -100,7 +104,7 @@ func (p *PasswordPrompt) getLabelPadding() int {
 	return labelPadding
 }
 
-// validatePasswordConfirmation check that the
+// ValidatePasswordConfirmation checks that the
 // password confirmation is equal to the given password.
 func validatePasswordConfirmation(password string) func(string) error {
 	return func(passwordConfirmation string) error {

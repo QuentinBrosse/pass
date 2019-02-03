@@ -33,14 +33,14 @@ var Pass = &cobra.Command{
 
 var PersistentFlags = new(PersistentFlagsVars)
 
-// Holds all arguments passed through the command line
+// Holds all arguments passed through the command line.
 type PersistentFlagsVars struct {
 	ConfDirPath string
 }
 
-// Build the command
+// Build builds the command.
 func Build(args ...string) {
-	cobra.OnInitialize(initialization)
+	cobra.OnInitialize(onInitialize)
 
 	Pass.SetUsageTemplate(helpTemplate)
 
@@ -59,21 +59,23 @@ func Build(args ...string) {
 	}
 }
 
-func initialization() {
+// OnInitialize runs the on boarding on CLI initialization.
+func onInitialize() {
 	err := onboarding.Run()
 	if err != nil {
 		printer.PrintlnErrExit(err)
 	}
 }
 
-// Execute the pass command.
+// Execute executes the pass command.
 func Execute() {
 	if err := Pass.Execute(); err != nil {
 		printer.PrintlnErrExit(err)
 	}
 }
 
-// Returns the default directory path for all configuration/user files based on the current user (~/.pass).
+// GetDefaultConfDirPath returns the default directory path for all
+// configuration/user files based on the current user (~/.pass).
 func getDefaultConfDirPath() string {
 	currentUser, err := user.Current()
 	if err != nil {

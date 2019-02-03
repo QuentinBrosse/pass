@@ -8,6 +8,7 @@ import (
 )
 
 func init() {
+	// Redefine the FuncMap with github.com/fatih/color helpers
 	promptui.FuncMap = template.FuncMap{
 		"red":   color.RedString,
 		"green": color.GreenString,

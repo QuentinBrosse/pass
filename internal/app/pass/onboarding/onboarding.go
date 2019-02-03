@@ -22,9 +22,10 @@ It will be used to encrypt all your other passwords, and must:
 - be at least 8 characters
 - contains at least one special character
 - contains at least one lowercase and one uppercase letter
+- contains at least a number
 `
 
-// Run the on boarding process.
+// Run runs the on boarding process.
 func Run() error {
 	password := keyring.GetMasterPassword()
 	if password != "" {
@@ -41,11 +42,12 @@ func Run() error {
 	return nil
 }
 
+// PrintOnBoardingMessage prints the on boarding message.
 func printOnBoardingMessage() {
 	fmt.Printf("%s%s", color.BlueString(passAsciiArt), message)
 }
 
-// promptMasterPassword prompts the master password and his confirmation.
+// PromptMasterPassword prompts the master password and the confirmation.
 func promptMasterPassword(creation bool) (string, error) {
 	passwordPrompt := prompt.PasswordPrompt{
 		Label: "Master password",
@@ -66,11 +68,14 @@ func promptMasterPassword(creation bool) (string, error) {
 var specialCharRegex = regexp.MustCompile("[[:punct:]]+")
 var lowercaseRegex = regexp.MustCompile("[[:lower:]]+")
 var uppercaseRegex = regexp.MustCompile("[[:upper:]]+")
+var numberRegex = regexp.MustCompile("[[:digit:]]+")
 
-// validateMasterPassword validate the password complexity.
+// ValidateMasterPassword validates the password complexity.
 // Its length must be equal or greater than 8 and contain at least:
-// one lowercase letter, one uppercase letter, one number
-// and one special character.
+// - one special character.
+// - one lowercase letter
+// - one uppercase letter
+// - one number
 func validateMasterPassword(password string) error {
 	if len(password) < 8 {
 		return fmt.Errorf("master password must be at least 8 characters")
@@ -83,6 +88,9 @@ func validateMasterPassword(password string) error {
 	}
 	if !uppercaseRegex.MatchString(password) {
 		return fmt.Errorf("master password must contains at least one uppercase letter")
+	}
+	if !numberRegex.MatchString(password) {
+		return fmt.Errorf("master password must contains at least one number")
 	}
 	return nil
 }

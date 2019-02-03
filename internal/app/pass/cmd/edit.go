@@ -12,6 +12,7 @@ var edit = &cobra.Command{
 	Run:   runEdit,
 }
 
+// Edit runs the edit command.
 func runEdit(cmd *cobra.Command, args []string) {
 	// TODO: Implement me
 	fmt.Println("Run:", cmd.Use)

@@ -12,6 +12,7 @@ var delete = &cobra.Command{
 	Run:   runDelete,
 }
 
+// RunDelete runs the delete command.
 func runDelete(cmd *cobra.Command, args []string) {
 	// TODO: Implement me
 	fmt.Println("Run:", cmd.Use)

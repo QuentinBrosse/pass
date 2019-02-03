@@ -12,6 +12,7 @@ var add = &cobra.Command{
 	Run:   runAdd,
 }
 
+// RunAdd runs the add command.
 func runAdd(cmd *cobra.Command, args []string) {
 	// TODO: Implement me
 	fmt.Println("Run:", cmd.Use)
