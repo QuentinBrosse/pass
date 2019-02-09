@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const defaultConfigDirName = ".pass"
+const (
+	defaultConfigDirName = ".pass"
+	defaultVaultFilename = "default.vlt"
+)
 
 // TODO: Make it customizable (in conf file)
 const defaultBinaryPrefix = "@"
@@ -33,7 +36,8 @@ var PersistentFlags = new(PersistentFlagsVars)
 
 // Holds all arguments passed through the command line
 type PersistentFlagsVars struct {
-	ConfDirPath string
+	ConfDirPath   string
+	VaultFilename string
 }
 
 // Build the command
@@ -41,10 +45,11 @@ func Build(args ...string) {
 	Pass.SetUsageTemplate(helpTemplate)
 
 	flagSet := Pass.PersistentFlags()
-	// TODO: Implement it
 	flagSet.StringVar(&PersistentFlags.ConfDirPath, "conf-dir", getDefaultConfDirPath(), "Directory for all configuration/user files")
+	flagSet.StringVar(&PersistentFlags.VaultFilename, "vault-filename", defaultVaultFilename, "Filename of the vault to use in --conf-dir")
 
 	Pass.AddCommand(
+		create,
 		add,
 		edit,
 		delete,

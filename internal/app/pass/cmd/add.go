@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +12,6 @@ var add = &cobra.Command{
 }
 
 func runAdd(cmd *cobra.Command, args []string) {
-	// TODO: Implement me
+	// TODO: implement me
 	fmt.Println("Run:", cmd.Use)
 }
